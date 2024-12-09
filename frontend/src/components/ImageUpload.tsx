@@ -3,9 +3,9 @@ import { useState, useEffect, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 // import { PromptImage } from "../../../types";
 import { toast } from "react-hot-toast";
-import { URLS } from "../urls";
-import { Badge } from "./ui/badge";
-import ScreenRecorder from "./recording/ScreenRecorder";
+// import { URLS } from "../urls";
+// import { Badge } from "./ui/badge";
+// import ScreenRecorder from "./recording/ScreenRecorder";
 import { ScreenRecorderState } from "../types";
 
 const baseStyle = {
@@ -64,7 +64,7 @@ interface Props {
 function ImageUpload({ setReferenceImages }: Props) {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   // TODO: Switch to Zustand
-  const [screenRecorderState, setScreenRecorderState] =
+  const [screenRecorderState, _] =
     useState<ScreenRecorderState>(ScreenRecorderState.INITIAL);
 
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } =

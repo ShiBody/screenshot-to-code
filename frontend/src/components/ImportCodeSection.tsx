@@ -38,9 +38,7 @@ function ImportCodeSection({ importFromCode }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="import-from-code-btn" variant="secondary">
-          Import from Code
-        </Button>
+        
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
