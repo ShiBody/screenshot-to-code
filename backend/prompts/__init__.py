@@ -10,7 +10,7 @@ from video.utils import assemble_claude_prompt_video
 
 
 USER_PROMPT = """
-Generate code for a web page that looks exactly like this.
+Use the first image as a library, and generate code for a Xcode project that looks exactly like the second image.
 """
 
 SVG_USER_PROMPT = """
@@ -102,7 +102,20 @@ def assemble_prompt(
     system_content = SYSTEM_PROMPTS[stack]
     user_prompt = USER_PROMPT if stack != "svg" else SVG_USER_PROMPT
 
+    from PIL import Image
+    from io import BytesIO
+    import base64
+    ui_image_path = '/Users/xiaoxshi/Downloads/03_01_51.jpg'
+    img_str = ''
+    with Image.open(ui_image_path) as img:
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
     user_content: list[ChatCompletionContentPartParam] = [
+        {
+            "type": "image_url",
+            "image_url": {"url": f'data:image/png;base64,{img_str}', "detail": "high"},
+        },
         {
             "type": "image_url",
             "image_url": {"url": image_data_url, "detail": "high"},
@@ -112,6 +125,8 @@ def assemble_prompt(
             "text": user_prompt,
         },
     ]
+
+
 
     # Include the result image if it exists
     if result_image_data_url:
@@ -130,5 +145,5 @@ def assemble_prompt(
         {
             "role": "user",
             "content": user_content,
-        },
+        }
     ]

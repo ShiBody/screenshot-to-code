@@ -241,7 +241,8 @@ async def stream_code(websocket: WebSocket):
     ### Code generation
 
     async def process_chunk(content: str, variantIndex: int):
-        await send_message("chunk", content, variantIndex)
+        print(f'{content}')
+        await send_message("chunk", "", variantIndex)
 
     if SHOULD_MOCK_AI_RESPONSE:
         completions = [await mock_completion(process_chunk, input_mode=input_mode)]
@@ -313,92 +314,99 @@ async def stream_code(websocket: WebSocket):
 
                 # Run the models in parallel and capture exceptions if any
                 completions = await asyncio.gather(*tasks, return_exceptions=True)
-
-                # If all generations failed, throw an error
-                all_generations_failed = all(
-                    isinstance(completion, Exception) for completion in completions
-                )
-                if all_generations_failed:
-                    await throw_error("Error generating code. Please contact support.")
-
-                    # Print the all the underlying exceptions for debugging
-                    for completion in completions:
-                        traceback.print_exception(
-                            type(completion), completion, completion.__traceback__
-                        )
-                    raise Exception("All generations failed")
-
-                # If some completions failed, replace them with empty strings
-                for index, completion in enumerate(completions):
-                    if isinstance(completion, Exception):
-                        completions[index] = ""
-                        print("Generation failed for variant", index)
-
-                print("Models used for generation: ", variant_models)
-
-        except openai.AuthenticationError as e:
-            print("[GENERATE_CODE] Authentication failed", e)
-            error_message = (
-                "Incorrect OpenAI key. Please make sure your OpenAI API key is correct, or create a new OpenAI API key on your OpenAI dashboard."
-                + (
-                    " Alternatively, you can purchase code generation credits directly on this website."
-                    if IS_PROD
-                    else ""
-                )
-            )
-            return await throw_error(error_message)
-        except openai.NotFoundError as e:
-            print("[GENERATE_CODE] Model not found", e)
-            error_message = (
-                e.message
-                + ". Please make sure you have followed the instructions correctly to obtain an OpenAI key with GPT vision access: https://github.com/abi/screenshot-to-code/blob/main/Troubleshooting.md"
-                + (
-                    " Alternatively, you can purchase code generation credits directly on this website."
-                    if IS_PROD
-                    else ""
-                )
-            )
-            return await throw_error(error_message)
-        except openai.RateLimitError as e:
-            print("[GENERATE_CODE] Rate limit exceeded", e)
-            error_message = (
-                "OpenAI error - 'You exceeded your current quota, please check your plan and billing details.'"
-                + (
-                    " Alternatively, you can purchase code generation credits directly on this website."
-                    if IS_PROD
-                    else ""
-                )
-            )
-            return await throw_error(error_message)
-
-    ## Post-processing
-
-    # Strip the completion of everything except the HTML content
-    completions = [extract_html_content(completion) for completion in completions]
-
-    # Write the messages dict into a log so that we can debug later
-    write_logs(prompt_messages, completions[0])
-
-    ## Image Generation
-
-    for index, _ in enumerate(completions):
-        await send_message("status", "Generating images...", index)
-
-    image_generation_tasks = [
-        perform_image_generation(
-            completion,
-            should_generate_images,
-            openai_api_key,
-            openai_base_url,
-            image_cache,
-        )
-        for completion in completions
-    ]
-
-    updated_completions = await asyncio.gather(*image_generation_tasks)
-
-    for index, updated_html in enumerate(updated_completions):
-        await send_message("setCode", updated_html, index)
-        await send_message("status", "Code generation complete.", index)
+                [extract_html_content(completion) for completion in completions]
+                print("done")
+        except Exception as e:
+            print(f"error happened: {str(e)}")
 
     await websocket.close()
+                # If all generations failed, throw an error
+        #         all_generations_failed = all(
+        #             isinstance(completion, Exception) for completion in completions
+        #         )
+        #         if all_generations_failed:
+        #             await throw_error("Error generating code. Please contact support.")
+        #
+        #             # Print the all the underlying exceptions for debugging
+        #             for completion in completions:
+        #                 traceback.print_exception(
+        #                     type(completion), completion, completion.__traceback__
+        #                 )
+        #             raise Exception("All generations failed")
+        #
+        #         # If some completions failed, replace them with empty strings
+        #         for index, completion in enumerate(completions):
+        #             if isinstance(completion, Exception):
+        #                 completions[index] = ""
+        #                 print("Generation failed for variant", index)
+        #
+        #         print("Models used for generation: ", variant_models)
+        #
+        # except openai.AuthenticationError as e:
+        #     print("[GENERATE_CODE] Authentication failed", e)
+        #     error_message = (
+        #         "Incorrect OpenAI key. Please make sure your OpenAI API key is correct, or create a new OpenAI API key on your OpenAI dashboard."
+        #         + (
+        #             " Alternatively, you can purchase code generation credits directly on this website."
+        #             if IS_PROD
+        #             else ""
+        #         )
+        #     )
+        #     return await throw_error(error_message)
+        # except openai.NotFoundError as e:
+        #     print("[GENERATE_CODE] Model not found", e)
+        #     error_message = (
+        #         e.message
+        #         + ". Please make sure you have followed the instructions correctly to obtain an OpenAI key with GPT vision access: https://github.com/abi/screenshot-to-code/blob/main/Troubleshooting.md"
+        #         + (
+        #             " Alternatively, you can purchase code generation credits directly on this website."
+        #             if IS_PROD
+        #             else ""
+        #         )
+        #     )
+        #     return await throw_error(error_message)
+        # except openai.RateLimitError as e:
+        #     print("[GENERATE_CODE] Rate limit exceeded", e)
+        #     error_message = (
+        #         "OpenAI error - 'You exceeded your current quota, please check your plan and billing details.'"
+        #         + (
+        #             " Alternatively, you can purchase code generation credits directly on this website."
+        #             if IS_PROD
+        #             else ""
+        #         )
+        #     )
+        #     return await throw_error(error_message)
+
+    ## Post-processing
+    # sxx
+
+
+    # Strip the completion of everything except the HTML content
+    # [extract_html_content(completion) for completion in completions]
+
+    # # Write the messages dict into a log so that we can debug later
+    # write_logs(prompt_messages, completions[0])
+    #
+    # ## Image Generation
+    #
+    # for index, _ in enumerate(completions):
+    #     await send_message("status", "Generating images...", index)
+    #
+    # image_generation_tasks = [
+    #     perform_image_generation(
+    #         completion,
+    #         should_generate_images,
+    #         openai_api_key,
+    #         openai_base_url,
+    #         image_cache,
+    #     )
+    #     for completion in completions
+    # ]
+    #
+    # updated_completions = await asyncio.gather(*image_generation_tasks)
+    #
+    # for index, updated_html in enumerate(updated_completions):
+    #     await send_message("setCode", updated_html, index)
+    #     await send_message("status", "Code generation complete.", index)
+
+    # await websocket.close()
