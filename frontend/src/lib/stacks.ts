@@ -13,8 +13,8 @@ export enum Stack {
 export const STACK_DESCRIPTIONS: {
   [key in Stack]: { components: string[]; inBeta: boolean };
 } = {
-  html_css: { components: ["HTML", "CSS"], inBeta: false },
-  html_tailwind: { components: ["HTML", "Tailwind"], inBeta: false },
+  html_css: { components: ["Swift", "CSS"], inBeta: false },
+  html_tailwind: { components: ["Swift", "XIB"], inBeta: false },
   react_tailwind: { components: ["React", "Tailwind"], inBeta: false },
   bootstrap: { components: ["Bootstrap"], inBeta: false },
   vue_tailwind: { components: ["Vue", "Tailwind"], inBeta: true },
